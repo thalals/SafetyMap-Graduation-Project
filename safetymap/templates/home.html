@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,23 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Safety-Map Home</title>
 
-    <style>
-        .inputaddr{
-            display: flex;
-
-            z-index: 1;
-            position: absolute;
-            left: 50%;      /*화면의 왼쪽으로부터 50% 이동*/
-            transform:translateX(-50%); /*자신의 크기 절반만큼 왼쪽으로 이동*/
-        }
-        .input_block{
-           
-        }
-        #map{
-            z-index: 0;
-            position: relative;
-        }
-    </style>
+    <script defer src ="{% static 'js/home.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
     
     
 </head>
@@ -31,16 +17,16 @@
     <!-- startPoint, EndPoint InPut -->
     <div class='inputaddr'>
         <div >
-            <div class ='start_input'>
+            <div id ='start_input' >
                 <input  type="text" placeholder="출발지를 입력하세요">
             </div>
-            <div class ='end_input'>
+            <div id ='end_input'>
                 <input  type="text" placeholder="목적지를 입력하세요">
             </div>
         </div>
        
         <div class ='input_block'>
-            <button type="submit" > 길찾기 </button>
+            <button type="submit" > 길찾기 </button> 
         </div>
     </div>
     <!-- 전체 지도 -->
