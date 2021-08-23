@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Safety-Map Home</title>
 
-    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-    <script defer src ="{% static 'js/home.js' %}"></script>
+    <script defer src="https://maps.googleapis.com/maps/api/js?key=894cfd738b31d10baba806317025d155&libraries=places&callback=initMap"></script>
+    <script defer src ="{% static 'js/home.js' %}?ver=2"></script>
     <link rel="stylesheet" href="{% static 'css/home.css' %}?ver=1">
     
     
@@ -19,10 +19,10 @@
     <div class='inputaddr'>
         <div >
             <div id ='start_input' >
-                <input id ='StarAddr' type="text" placeholder="출발지를 입력하세요">
+                <input  type="text" placeholder="출발지를 입력하세요">
             </div>
             <div id ='end_input'>
-                <input id ='EndAddr' type="text" placeholder="목적지를 입력하세요">
+                <input  type="text" placeholder="목적지를 입력하세요">
             </div>
         </div>
        

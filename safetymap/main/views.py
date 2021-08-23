@@ -11,5 +11,10 @@ def home(request) :
     # plugins.Geocoder().add_to(map)
 
     maps=map._repr_html_()  #지도를 템플릿에 삽입하기위해 iframe이 있는 문자열로 반환 (folium)
-
+    
     return render(request,'../templates/home.html',{'map' : maps})
+
+
+def test(request) :
+    
+    return render(request, '../templates/kakaotest.html')
