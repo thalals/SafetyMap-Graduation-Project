@@ -20,5 +20,6 @@ from django.urls.conf import include
 from . import views
 urlpatterns = [
    path('',views.home, name='home'),
-   path('test',views.test, name='test'),
+   path('path',views.PathFinder, name='pathfinder'),
+   path('SetSpot', views.GetSpotPoint, name='getspotpoint'),
 ]

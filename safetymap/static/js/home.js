@@ -1,4 +1,26 @@
 "use strict"
+//csrf token
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+var csrftoken = getCookie('csrftoken');
+
+
+var resultArray=[]; //출발지, 목적지 좌표
+
 var input = document.getElementById("start_input");
 
 input.onclick  = function(){
@@ -29,10 +51,11 @@ input.onclick  = function(){
             // document.getElementById('sample4_postcode').value = data.zonecode;
             // document.getElementById("sample4_roadAddress").value = roadAddr;
             // document.getElementById("sample4_jibunAddress").value = data.jibunAddress;
-            document.getElementById("StarAddr").value = roadAddr;
+            document.getElementById("StarAddr").value = roadAddr;           
             
         }
     }).open();
+
 };
 
 
@@ -53,12 +76,34 @@ output.onclick = function(){
                 extraRoadAddr = ' (' + extraRoadAddr + ')';
             }
             
+            //set value 도로명 주소
             document.getElementById("EndAddr").value = roadAddr;
-
+            
+            
         }
     }).open();
 };
 
-output.onkeydown = function(){
-    console.log(Event.KeyCode);
-};
+
+//길찾기 버튼 클릭
+$("#find_botton").click(function(){
+    console.log($('#StartAddr').val());
+    $.ajax({
+        type:'POST',
+        url : setpointpage,
+        
+        data:{
+            'StartAddr' : $('#StartAddr').val(), 
+            'EndAddr' : $('#EndAddr').val(),
+            'csrfmiddlewaretoken':  csrftoken,
+        },
+    
+        success : (result) => {
+            resultArray=result;
+            console.log(resultArray)
+        },
+        fail: (error) => {
+            console.log(error);
+        }
+    });
+});
