@@ -1,4 +1,5 @@
 "use strict"
+
 //csrf token
 function getCookie(name) {
     var cookieValue = null;
@@ -20,7 +21,7 @@ var csrftoken = getCookie('csrftoken');
 
 
 var resultArray=[]; //출발지, 목적지 좌표
-
+var shortestRoute=[];   //최단거리 좌표 정보
 var input = document.getElementById("start_input");
 
 input.onclick  = function(){
@@ -85,25 +86,89 @@ output.onclick = function(){
 };
 
 
-//길찾기 버튼 클릭
+// //길찾기 버튼 클릭
 $("#find_botton").click(function(){
-    console.log($('#StartAddr').val());
-    $.ajax({
-        type:'POST',
-        url : setpointpage,
+    //출발지 목적지 주소 -> 좌표변환
+    new Promise((succ, fail) =>{
+        $.ajax({
+            type:'POST',
+            url : setpointpage,
+            
+            data:{
+                'StartAddr' : $('#StartAddr').val(), 
+                'EndAddr' : $('#EndAddr').val(),
+                'csrfmiddlewaretoken':  csrftoken,
+            },
         
-        data:{
-            'StartAddr' : $('#StartAddr').val(), 
-            'EndAddr' : $('#EndAddr').val(),
-            'csrfmiddlewaretoken':  csrftoken,
-        },
-    
-        success : (result) => {
-            resultArray=result;
-            console.log(resultArray)
-        },
-        fail: (error) => {
-            console.log(error);
-        }
+            success : (result) => {
+                resultArray=result;
+                console.log(resultArray)
+                succ(result);  //성공하면 검색결과 처리
+            },
+            fail: (error) => {
+                console.log(error);
+            }
+        });
+    //resultArray : startaddr, endaddr 좌표
+    }).then((arg) =>{
+        console.log('좌표변환후 최단거리 실행');
+        $.ajax({
+            method : "POST",
+            url : "https://apis.openapi.sk.com/tmap/routes/pedestrian?version=1&format=json&callback=result",
+            data : {
+                "appKey" : "l7xxa033eab75a3a4ab38dd11a74fb8b87c6",
+                "startX" : resultArray['startaddr'][1],
+                "startY" :resultArray['startaddr'][0],
+                "endX" :resultArray['endaddr'][1],
+                "endY" :resultArray['endaddr'][0],
+                "reqCoordType" : "WGS84GEO",
+                "resCoordType" : "EPSG3857",
+                "startName" : "출발지",
+                "endName" : "도착지"
+            },
+            success: (result) => {
+                var resultData = result.features;       //출발지부터 목적지까지 경로좌표들(Point, Line)
+                //결과 출력
+				var tDistance = "총 거리 : "+ ((resultData[0].properties.totalDistance) / 1000).toFixed(1) + "km,";
+                var tTime = " 총 시간 : "+ ((resultData[0].properties.totalTime) / 60).toFixed(0) + "분";
+                console.log(tDistance+" "+tTime);
+
+                for ( var i in resultData) { //for문 [S]
+                    var geometry = resultData[i].geometry;  //좌표정보 ()
+                    
+                    if (geometry.type == "LineString") {
+                        for ( var j in geometry.coordinates) {
+                            // 경로들의 결과값(구간)들을 포인트 객체로 변환 
+                            var latlng = new Tmapv2.Point(geometry.coordinates[j][0], geometry.coordinates[j][1]);
+                            
+                            // 포인트 객체를 받아 좌표값으로 변환
+                            var convertPoint = new Tmapv2.Projection.convertEPSG3857ToWGS84GEO(latlng);
+                            // 포인트객체의 정보로 좌표값 변환 객체로 저장
+                            var convertChange = new Tmapv2.LatLng(convertPoint._lat,convertPoint._lng);
+                            // 배열에 담기
+                            shortestRoute.push(convertChange);
+                        }              
+                    } 
+                }
+                console.log(shortestRoute);
+            },
+            fail: (error) => {
+                console.log(error);
+            }
+        });
+    }).then((arg) =>{
+        console.log('최단거리 전송');
+        $.ajax({
+            type:'POST',
+            url : setpointpage,
+            
+            data:{
+                'StartAddr' : $('#StartAddr').val(), 
+                'EndAddr' : $('#EndAddr').val(),
+                'csrfmiddlewaretoken':  csrftoken,
+            },
+            
+        });
     });
+   
 });
