@@ -18,19 +18,26 @@ def home(request) :
 
 
 def PathFinder(request) :
-    coordinates=[]
+    shortData=[]
+    SPoint =[]
 
     start_coordinate = getLatLng(request.POST.get('StartAddr'))
     end_coordinate = getLatLng(request.POST.get('EndAddr'))
 
-    coordinates.append(start_coordinate)
-    coordinates.append(end_coordinate)
+    shortData = request.POST.get('shortestRoute').split(",")
 
-    result = {"type":"feature" , "geometry" : {"type" : "point","coordinates" :coordinates}}
+    print(shortData)
+    for i in shortData :
+        if(shortData.index(i)%2==0) :
+            lat =i; #위도
+            lon = shortData[(shortData.index(i))+1]  #경도
+            point=[float(lon), float(lat)]
+            SPoint.append(point)
+        
+    map = folium.Map(location=start_coordinate,zoom_start=15, width='100%', height='100%',) 
 
-    map = folium.Map(location=start_coordinate,zoom_start=15, width='100%', height='100%',)
-    plugins.LocateControl().add_to(map)
-
+    # folium.PolyLine(locations=SPoint, weight = 4, color='red').add_to(map)
+    
     folium.Marker(
         location=start_coordinate,
         popup=request.POST.get('StartAddr'),
@@ -42,6 +49,8 @@ def PathFinder(request) :
         popup=request.POST.get('EndAddr'),
         icon=folium.Icon(color="red"),
     ).add_to(map)
+    
+    plugins.LocateControl().add_to(map)
 
     maps=map._repr_html_()  #지도를 템플릿에 삽입하기위해 iframe이 있는 문자열로 반환 (folium)
 

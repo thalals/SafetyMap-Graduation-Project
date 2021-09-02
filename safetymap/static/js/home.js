@@ -22,8 +22,8 @@ var csrftoken = getCookie('csrftoken');
 
 var resultArray=[]; //출발지, 목적지 좌표
 var shortestRoute=[];   //최단거리 좌표 정보
-var input = document.getElementById("start_input");
 
+var input = document.getElementById("start_input");
 input.onclick  = function(){
     new daum.Postcode({
         oncomplete: function(data) {
@@ -52,11 +52,9 @@ input.onclick  = function(){
             // document.getElementById('sample4_postcode').value = data.zonecode;
             // document.getElementById("sample4_roadAddress").value = roadAddr;
             // document.getElementById("sample4_jibunAddress").value = data.jibunAddress;
-            document.getElementById("StarAddr").value = roadAddr;           
-            
+            document.getElementById("StarAddr").value = roadAddr;            
         }
     }).open();
-
 };
 
 
@@ -78,9 +76,7 @@ output.onclick = function(){
             }
             
             //set value 도로명 주소
-            document.getElementById("EndAddr").value = roadAddr;
-            
-            
+            document.getElementById("EndAddr").value = roadAddr;     
         }
     }).open();
 };
@@ -88,6 +84,7 @@ output.onclick = function(){
 
 // //길찾기 버튼 클릭
 $("#find_botton").click(function(){
+    shortestRoute=[]    //초기화
     //출발지 목적지 주소 -> 좌표변환
     new Promise((succ, fail) =>{
         $.ajax({
@@ -107,6 +104,7 @@ $("#find_botton").click(function(){
             },
             fail: (error) => {
                 console.log(error);
+                fail(error);
             }
         });
     //resultArray : startaddr, endaddr 좌표
@@ -151,23 +149,22 @@ $("#find_botton").click(function(){
                     } 
                 }
                 console.log(shortestRoute);
+                $.ajax({
+                    type:'POST',
+                    url : pathfinder,
+                    
+                    data:{
+                        'StartAddr' : $('#StartAddr').val(), 
+                        'EndAddr' : $('#EndAddr').val(),
+                        'shortestRoute' : String(shortestRoute),
+                        'csrfmiddlewaretoken':  csrftoken,
+                    },
+                    
+                });
             },
             fail: (error) => {
                 console.log(error);
             }
-        });
-    }).then((arg) =>{
-        console.log('최단거리 전송');
-        $.ajax({
-            type:'POST',
-            url : setpointpage,
-            
-            data:{
-                'StartAddr' : $('#StartAddr').val(), 
-                'EndAddr' : $('#EndAddr').val(),
-                'csrfmiddlewaretoken':  csrftoken,
-            },
-            
         });
     });
    
