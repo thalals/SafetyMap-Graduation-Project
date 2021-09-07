@@ -21,6 +21,8 @@
 <body>    
     <!-- startPoint, EndPoint InPut -->
     <div class='inputaddr'>
+        <form id='pathForm' name='pathfinder_form' action="{% url 'pathfinder' %}" method="POST">
+            {% csrf_token %}
             <div>
                 <div id ='start_input' >
                     <input id ='StartAddr' name='StartAddr' type="text" placeholder="출발지를 입력하세요" >
@@ -31,8 +33,11 @@
             </div>
            
             <div class ='input_block'>
-                <button id='find_botton' type="submit" > 길찾기 </button> 
+                <button id='find_botton' type="button" > 길찾기 </button> 
             </div>        
+            
+            <input id='shortestRoute' type="hidden" name = 'shortestRoute' value="t">
+        </form>
     </div>
     <!-- 전체 지도 -->
     <div id='map'>

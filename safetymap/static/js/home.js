@@ -149,18 +149,11 @@ $("#find_botton").click(function(){
                     } 
                 }
                 console.log(shortestRoute);
-                $.ajax({
-                    type:'POST',
-                    url : pathfinder,
-                    
-                    data:{
-                        'StartAddr' : $('#StartAddr').val(), 
-                        'EndAddr' : $('#EndAddr').val(),
-                        'shortestRoute' : String(shortestRoute),
-                        'csrfmiddlewaretoken':  csrftoken,
-                    },
-                    
-                });
+
+                document.getElementById("shortestRoute").value = String(shortestRoute);
+
+                document.getElementById('pathForm').submit();
+
             },
             fail: (error) => {
                 console.log(error);

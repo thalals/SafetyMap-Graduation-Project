@@ -26,17 +26,16 @@ def PathFinder(request) :
 
     shortData = request.POST.get('shortestRoute').split(",")
 
-    print(shortData)
     for i in shortData :
         if(shortData.index(i)%2==0) :
             lat =i; #위도
             lon = shortData[(shortData.index(i))+1]  #경도
-            point=[float(lon), float(lat)]
+            point=[float(lat), float(lon)]
             SPoint.append(point)
-        
+
     map = folium.Map(location=start_coordinate,zoom_start=15, width='100%', height='100%',) 
 
-    # folium.PolyLine(locations=SPoint, weight = 4, color='red').add_to(map)
+    folium.PolyLine(locations=SPoint, weight = 4, color='red').add_to(map)
     
     folium.Marker(
         location=start_coordinate,
@@ -53,18 +52,17 @@ def PathFinder(request) :
     plugins.LocateControl().add_to(map)
 
     maps=map._repr_html_()  #지도를 템플릿에 삽입하기위해 iframe이 있는 문자열로 반환 (folium)
-
-    # return HttpResponse(json.dumps({'result' : result}), content_type='application/json')       #return ajax datatype -> json
+    
+    # return HttpResponse(json.dumps({'Spoint' : SPoint}), content_type='application/json')       #return ajax datatype -> json
     return render(request,'../templates/home.html',{'map' : maps})
-
+        
 def GetSpotPoint(request) :
 
     start_coordinate = getLatLng(request.POST.get('StartAddr'))
     end_coordinate = getLatLng(request.POST.get('EndAddr'))
 
     context = {'startaddr' : start_coordinate, 'endaddr' : end_coordinate}    
-    # result = {"type":"feature" , "geometry" : {"type" : "point","coordinates" :coordinates}}
-    # print('result : ',result)
+    
     return HttpResponse(json.dumps(context), content_type='application/json')
 
 def getLatLng(addr):
