@@ -1,12 +1,49 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>관리자 페이지</title>
+    <title>Safety-Map Home</title>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}?ver=1">
+
+    <script type="text/javascript"> 
+        var Msetpointpage = "{% url 'manager_getspotpoint' %}";
+        var Mpathfinder = "{% url 'manager_pathfinder' %}";
+    </script>
+    <script defer src="https://code.jquery.com/jquery-3.2.1.min.js"></script>          <!--JQuery-->
+    <script src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=l7xxa033eab75a3a4ab38dd11a74fb8b87c6"></script> 
+    <script defer src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>     <!-- 주소검색 api-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.css"  />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.js"></script>     <!--Leaflet-->
+    <script defer src ="{% static 'js/manager.js' %}"></script>
 </head>
-<body>
-    
+<body>    
+    <!-- startPoint, EndPoint InPut -->
+    <div class='inputaddr'>
+        <form id='pathForm' name='pathfinder_form' action="{% url 'manager_pathfinder' %}" method="POST">
+            {% csrf_token %}
+            <div>
+                <div id ='start_input' >
+                    <input id ='StartAddr' name='StartAddr' type="text" placeholder="출발지를 입력하세요" >
+                </div>
+                <div id ='end_input'>
+                    <input id ='EndAddr' name='EndAddr' type="text" placeholder="목적지를 입력하세요" >
+                </div>
+            </div>
+           
+            <div class ='input_block'>
+                <button id='find_botton' type="button" > 길찾기 </button> 
+            </div>        
+            
+            <input id='shortestRoute' type="hidden" name = 'shortestRoute' value="t">
+        </form>
+    </div>
+    <!-- 전체 지도 -->
+    <div id='map'>
+        {{map|safe}}
+        관리자페이지
+    </div>
 </body>
 </html>
