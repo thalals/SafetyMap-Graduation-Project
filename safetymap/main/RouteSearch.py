@@ -22,7 +22,7 @@ Point = collections.namedtuple("Point", ["x", "y"])
 result = []
 Hmap = {}
 @logging_time
-def giveCost(grid, mapsize, startx, starty, endx, endy) :
+def giveCost(grid, startx, starty, endx, endy) :
 
     #x : lon(128), y : lat(37)
     loadpoint = Loadpoint.objects.filter(lon__range=(endx,startx),lat__range=(endy,starty)).order_by('lat')
@@ -30,10 +30,47 @@ def giveCost(grid, mapsize, startx, starty, endx, endy) :
     cctv = Cctv.objects.filter(lon__range=(endx,startx),lat__range=(endy,starty)).order_by('lat')
     securitycenter = Securitycenter.objects.filter(lon__range=(endx,startx),lat__range=(endy,starty)).order_by('lat')
     alltimeshop = Alltimeshop.objects.filter(lon__range=(endx,startx),lat__range=(endy,starty)).order_by('lat')
-
-    alltimeshop_distic = alltimeshop.values_list
+    
+    # 24시 가게
     for coor in alltimeshop :
-        print(coor.lat,coor.lon)
+        Hex_Point=grid.hex_at(Point(float(coor.lon),float(coor.lat))) 
+        
+        if(Hex_Point in Hmap) :
+            cost = Hmap[Hex_Point]+1
+            Hmap[Hex_Point] = cost
+
+    # securitycenter
+    for coor in securitycenter :
+        Hex_Point=grid.hex_at(Point(float(coor.lon),float(coor.lat))) 
+        
+        if(Hex_Point in Hmap) :
+            cost = Hmap[Hex_Point]+1
+            Hmap[Hex_Point] = cost
+
+    # cctv
+    for coor in cctv :
+        Hex_Point=grid.hex_at(Point(float(coor.lon),float(coor.lat))) 
+        
+        if(Hex_Point in Hmap) :
+            cost = Hmap[Hex_Point]+1
+            Hmap[Hex_Point] = cost        
+
+    # loadpoint
+    for coor in loadpoint :
+        Hex_Point=grid.hex_at(Point(float(coor.lon),float(coor.lat))) 
+        
+        if(Hex_Point in Hmap) :
+            cost = Hmap[Hex_Point]+1
+            Hmap[Hex_Point] = cost
+
+    # lamp
+    for coor in lamp :
+        Hex_Point=grid.hex_at(Point(float(coor.lon),float(coor.lat))) 
+        
+        if(Hex_Point in Hmap) :
+            cost = Hmap[Hex_Point]+1
+            Hmap[Hex_Point] = cost
+
 # hex 좌표로
 @logging_time
 def startSetting(start_coordinate, end_coordinate) :
@@ -44,12 +81,12 @@ def startSetting(start_coordinate, end_coordinate) :
 
     center=hexgrid.Point((float(startX)+float(endX))/2,(float(startY)+float(endY))/2)   #중앙
     rate = 110.574 / (111.320 * math.cos(37.55582994870823 * math.pi / 180))   #서울의 중앙을 잡고, 경도값에 대한 비율     
-    grid = hexgrid.Grid(hexgrid.OrientationFlat, center, Point(rate*0.00010,0.00010), morton.Morton(2, 32)) #Point : hexgrid Size
+    grid = hexgrid.Grid(hexgrid.OrientationFlat, center, Point(rate*0.00007,0.00007), morton.Morton(2, 32)) #Point : hexgrid Size
     sPoint=grid.hex_at(Point(float(startX),float(startY)))      # hex_at : point to hex -> 출발지 Point -> hex좌표
     ePoint=grid.hex_at(Point(float(endX),float(endY)))          #목적지
     map_size=max(abs(sPoint.q),abs(sPoint.r))   #열col(q) 행row(r)
     
-    real_hexMap_size = map_size+5   #ex) 21 (q,r)이 가지는 최대 절대값
+    real_hexMap_size = map_size+10   #ex) 21 (q,r)이 가지는 최대 절대값
 
     LeftCorner = (grid.hex_center(hexgrid.Hex(-(real_hexMap_size),0)).x ,grid.hex_center(hexgrid.Hex(0,-(real_hexMap_size))).y)
     RightCorner = (grid.hex_center(hexgrid.Hex((real_hexMap_size),0)).x ,grid.hex_center(hexgrid.Hex(0,(real_hexMap_size))).y)
@@ -72,15 +109,16 @@ def startSetting(start_coordinate, end_coordinate) :
         starty = temp
 
     neighbor=[]
+
     neighbor =grid.hex_neighbors(grid.hex_at(center),real_hexMap_size) #hex_neighbor : type(Hex, int) -> list
     neighbor.append(grid.hex_at(center))
     # print(neighbor)
 
     for hex in neighbor :
         Hmap[hex]=0
-    # print(Hmap)
-    giveCost(grid,real_hexMap_size,startx,starty,endx,endy)  #cost
+
+    giveCost(grid,startx,starty,endx,endy)  #cost
 
 
     # print(len(loadpoint))
-    return result
+    return Hmap, grid
