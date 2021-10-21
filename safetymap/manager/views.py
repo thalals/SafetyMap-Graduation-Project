@@ -21,7 +21,7 @@ def adminstartor(request) :
     return render(request,'../templates/adminstartor.html',{'map' : maps})
 
 def PathFinder(request) :
-    SafeData=[]
+    path=[]
 
     start_coordinate = getLatLng(request.POST.get('StartAddr'))
     end_coordinate = getLatLng(request.POST.get('EndAddr'))
@@ -30,11 +30,15 @@ def PathFinder(request) :
 
     # 구여 범위 내 db 정보 (cost)
     #-----------------return hex corner ---------------------
-    Hexlist, grid = RouteSearch.startSetting(start_coordinate, end_coordinate)
+    Hexlist, grid, path = RouteSearch.startSetting(start_coordinate, end_coordinate)
 
     print("hexgrid 개수 : ",len(Hexlist))
     
     for hex, cost in Hexlist.items() :
+
+        color = ''
+        if hex in path :
+            color = 'red'
         hexPointlist = grid.hex_corners(hex)
         hex_Polygon = []
         
@@ -44,14 +48,14 @@ def PathFinder(request) :
         folium.Polygon(
             locations=hex_Polygon,
             fill = True,
-            tooltip = cost
+            fill_color = color,
+            tooltip = f'cost :{cost} q : {hex.q} r : {hex.r}'
         ).add_to(map)
         
    
     # ---------------------------안전 루트--------------------------------------
     # 포인트 형태의 리스트 반환
 
-    # SafeData = RouteSearch.setPoint(start_coordinate,end_coordinate)
 
      #-----------------------------맵핑-----------------------------------------
     
