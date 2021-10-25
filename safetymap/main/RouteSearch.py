@@ -51,11 +51,13 @@ class Node:
         self.position = position
 
         self.g = 0  #출잘지지점에서 현재노드까지의 cost합
-        self.h = 0  #heuristic 현재노드에서 목적지까지의 추정 거리
-        self.f = 0  #출발지점에서 목적지까지의 cost합
+        self.h = 1  #heuristic 현재노드에서 목적지까지의 추정 거리
+        self.f = 0  #g+h
 
-        self.cost = 0
-        self.cost_sum=0
+        self.cost = 0   #이 타일의 cost
+        self.cost_sum=0 #여기 까지 오는데 먹는 cost
+
+        self.TileValue=0
 
     def __eq__(self, other):
         return self.position == other.position
@@ -123,8 +125,10 @@ def astar(starthex, endhex, grid, mapsize) :
     openList.append(startNode)
 
     print('시작 :', startNode.position, '끝 : ',endNode.position)
-    
+    max_h = Heuristic(starthex,endhex)
+    print('maxh : ',max_h)
     endpoint = startNode
+
     #endNode를 찾을 때까지 실행
     while openList :
         
@@ -132,18 +136,12 @@ def astar(starthex, endhex, grid, mapsize) :
         currentNode = openList[0]
         currentIdx = 0
 
-        if(currentNode.parent is not None):
-            now_cost = currentNode.parent.cost_sum
-        else :
-            now_cost = 0
-
-        currentNode.cost_sum = currentNode.cost + now_cost
 
         # print('현재 노드 : ',currentNode.position)
         #이미 같은 노드가 openList에 있고, f값이 더 크면 -> Cost값
         #currentNode를 openList안에 있는 값으로 교체
         for index, item in enumerate(openList) :
-            if item.cost + now_cost > currentNode.cost_sum :
+            if item.cost_sum > currentNode.cost_sum :
                 currentNode = item
                 currentIdx = index
             # if item.f < currentNode.f :
@@ -157,52 +155,35 @@ def astar(starthex, endhex, grid, mapsize) :
 
 
         # #현재 노드가 목적지면 current.position 추가하고
-        # # current 부모 노드로 이동
-        # if currentNode.position == endNode.position  :
-        #     print('찾았니?')
-        #     path = []
-        #     current = currentNode
+        # current 부모 노드로 이동
+        if currentNode.position == endNode.position  :
+            print('찾았니?')
+            path = []
+            current = currentNode
 
-        #     while current is not None :
-        #         path.append(current.position)
-        #         current = current.parent    
-        #     return path[::-1] #reverse - 최단경로
+            while current is not None :
+                # print(current.position,' : f():', current.f,' : h():', current.h,' , g():',current.g, ', cost:',current.cost,', cost_sum:',current.cost_sum)
+                path.append(current.position)
+                current = current.parent    
+            return path[::-1] #reverse - 최단경로
 
         children = []
 
         #인접한 좌표 체크
         # neighbor -> 범위, cost(갈 수 잇는 길인지) 체크
+
         neighbor = grid.hex_neighbors(currentNode.position,1)
         
         for newPosition in neighbor :
-            #현재 노드가 목적지면 current.position 추가하고
-            # current 부모 노드로 이동
-            if newPosition == endNode.position  :
-                print('찾았니?')
-                currentNode = Node(currentNode, newPosition)
-                path = []
-                current = currentNode
-
-                while current is not None :
-                    path.append(current.position)
-                    current = current.parent    
-                return path[::-1] #reverse - 최단경로
-                
-            # 탐색할 새 노드 -> Hmap 안에 없으면 path
-            if Hmap.get(newPosition) :
+            # 탐색할 새 노드 -> Hmap 안에 없으면 path(범위 안에 hexgrid만 탐색)
+            if Hmap.get(newPosition) is not None :
                 TileCost = Hmap[newPosition]
             else : continue
 
-            #범위 탈추한 거
-            # if abs(newPosition.q) >= mapsize or abs(newPosition.r) >= mapsize :
-            #     continue
-
-            #갈수 없는길
-            # if TileCost == 0 :
-            #     continue
-
             new_node = Node(currentNode, newPosition)
             new_node.cost = int(TileCost)
+            new_node.cost_sum = currentNode.cost_sum + new_node.cost
+            new_node.TileValue =new_node.cost -max_h/(currentNode.h*(max_h/20))
             children.append(new_node)   
 
         #자식들 모두 loop
@@ -218,24 +199,19 @@ def astar(starthex, endhex, grid, mapsize) :
 
             child.f = child.g + child.h 
             
-            # child.f = child.g + child.h + (child.cost)      #TileCost의 값을 추가해줌
-
             # 자식이 openList에 있고, g값이 더 크면 continue(돌아서 온 경우)
             # for openNode in openList :
             #     if(child == openNode and child.g > openNode.g) :
             #         continue
             
             
-            #갈수 없는길 but 목적지까지 얼마 안남았으면 탐색 포함
-            if child.cost == 0 and child.h>1000 :
-                continue
             openList.append(child)
 
         endpoint = currentNode    
     
     path = []
     closeList.append(endpoint)
-    print(endpoint.h)
+    print(endpoint.position, endpoint.h)
     print('못찾음')
     for ch in closeList :
             path.append(ch.position)   
@@ -292,6 +268,6 @@ def startSetting(start_coordinate, end_coordinate) :
     giveCost(grid,startx,starty,endx,endy)  #cost
 
     # result = astar(sPoint,ePoint,grid,map_size)
-    
     path =astar(sPoint,ePoint,grid,map_size) 
+    # print(path)
     return Hmap, grid, path

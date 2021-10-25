@@ -34,11 +34,17 @@ def PathFinder(request) :
 
     print("hexgrid 개수 : ",len(Hexlist))
     
+    
     for hex, cost in Hexlist.items() :
 
         color = ''
+        #cost만 찍어보기
+        if cost >0:
+            color='yellow'
+
         if hex in path :
             color = 'red'
+
         hexPointlist = grid.hex_corners(hex)
         hex_Polygon = []
         
