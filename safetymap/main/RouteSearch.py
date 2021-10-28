@@ -229,12 +229,13 @@ def startSetting(start_coordinate, end_coordinate) :
 
     center=hexgrid.Point((float(startX)+float(endX))/2,(float(startY)+float(endY))/2)   #중앙
     rate = 110.574 / (111.320 * math.cos(37.55582994870823 * math.pi / 180))   #서울의 중앙을 잡고, 경도값에 대한 비율     
-    grid = hexgrid.Grid(hexgrid.OrientationFlat, center, Point(rate*0.00005,0.00005), morton.Morton(2, 32)) #Point : hexgrid Size
+    grid = hexgrid.Grid(hexgrid.OrientationFlat, center, Point(rate*0.00004,0.00004), morton.Morton(2, 32)) #Point : hexgrid Size
     sPoint=grid.hex_at(Point(float(startX),float(startY)))      # hex_at : point to hex -> 출발지 Point -> hex좌표
     ePoint=grid.hex_at(Point(float(endX),float(endY)))          #목적지
     map_size=max(abs(sPoint.q),abs(sPoint.r))   #열col(q) 행row(r)
     
-    real_hexMap_size = map_size+10   #ex) 21 (q,r)이 가지는 최대 절대값
+    # real_hexMap_size = map_size+10   #ex) 21 (q,r)이 가지는 최대 절대값
+    real_hexMap_size = map_size+15   #ex) 21 (q,r)이 가지는 최대 절대값
 
     LeftCorner = (grid.hex_center(hexgrid.Hex(-(real_hexMap_size),0)).x ,grid.hex_center(hexgrid.Hex(0,-(real_hexMap_size))).y)
     RightCorner = (grid.hex_center(hexgrid.Hex((real_hexMap_size),0)).x ,grid.hex_center(hexgrid.Hex(0,(real_hexMap_size))).y)
