@@ -63,19 +63,15 @@ def PathFinder(request) :
     Before_Hex = path[0]
     increase=[0,0]      #q,r 증가율
     count=1
-    hexcount=1
+    
     for idx, HexPoint in enumerate(path) :
         if Before_Hex is not HexPoint :
             #첫 노드 증가율 기록 - 두번째 노드
             if increase[0]==0 and increase[1]==0:
-                # print('처음 incread :',increase)
                 x = int(HexPoint[0])-int(Before_Hex[0])
                 y = int(HexPoint[1])-int(Before_Hex[1])
                 increase=[x,y]
                 Before_Hex =HexPoint
-                # print('변경 후 incread :',increase)
-                print(hexcount,'-',Before_Hex,'\n')
-                hexcount+=1
 
                 continue
             #증가율 비교
@@ -84,25 +80,17 @@ def PathFinder(request) :
                 y = int(HexPoint[1])-int(Before_Hex[1])
                 if increase[0]==x and increase[1]==y:
                     Before_Hex =HexPoint
-                    # print(hexcount,'-',Before_Hex,'\n')
-                    hexcount+=1
                     continue
                 else:
-                    # print('incread :',increase)
                     increase=[x,y]
-                    # print('변경 후 incread :',increase)
 
 
         print(count,' ',HexPoint)
         count+=1
         Before_Hex =HexPoint
-        # print(hexcount,'-',Before_Hex,'\n')
-        hexcount+=1
         geo_center = grid.hex_center(HexPoint)
         SafePath.append([geo_center.y,geo_center.x])
 
-        # if idx < len(path):
-        #     increase=[path[idx+1][0]-HexPoint[0],path[idx+1][1]-HexPoint[1]]
         increase=[0,0]
     folium.PolyLine(locations=SafePath, weight = 4, color='blue').add_to(map)
 
