@@ -1,4 +1,35 @@
 "use strict"
+let latitude=0;
+let longitude=0;
+
+$(document).ready(function(){
+    getLocation().then(location => {
+        latitude =location['latitude']
+        longitude = location['longitude'];
+    }).then((arg) =>{
+        var leaf_map=L.map('map').setView([latitude, longitude],15)
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom: 18}).addTo(leaf_map);    //tileLayer의 {s}는 서버 도메인 , {z},{x},{y}는 타일 지도의 위치, addTo 매소드로 map에 타일 지도를 추가
+        L.control.locate({
+            position: 'topleft',
+            strings: {
+                title: "Show me where I am, yo!"
+            }
+        }).addTo(leaf_map);
+    });
+})
+
+// 현재의 위치 정보를 가져온다.
+function getLocation() {
+    return new Promise(resolve => {
+        navigator.geolocation.watchPosition(function(position) {
+            return resolve({
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+            });
+        });
+    });
+}
 
 //csrf token
 function getCookie(name) {
@@ -22,6 +53,7 @@ var csrftoken = getCookie('csrftoken');
 
 var resultArray=[]; //출발지, 목적지 좌표
 var shortestRoute=[];   //최단거리 좌표 정보
+var safeRoute=[];
 
 var input = document.getElementById("start_input");
 input.onclick  = function(){
@@ -85,6 +117,8 @@ output.onclick = function(){
 // //길찾기 버튼 클릭
 $("#find_botton").click(function(){
     shortestRoute=[]    //초기화
+    safeRoute=[]
+
     //출발지 목적지 주소 -> 좌표변환
     new Promise((succ, fail) =>{
         $.ajax({
@@ -130,7 +164,10 @@ $("#find_botton").click(function(){
 				var tDistance = "총 거리 : "+ ((resultData[0].properties.totalDistance) / 1000).toFixed(1) + "km,";
                 var tTime = " 총 시간 : "+ ((resultData[0].properties.totalTime) / 60).toFixed(0) + "분";
                 console.log(tDistance+" "+tTime);
-
+                
+                $('#safe-route').text(tDistance)
+                $('#safe-time').text(tTime)
+                
                 for ( var i in resultData) { //for문 [S]
                     var geometry = resultData[i].geometry;  //좌표정보 ()
                     
@@ -149,16 +186,37 @@ $("#find_botton").click(function(){
                     } 
                 }
                 console.log(shortestRoute);
-
-                document.getElementById("shortestRoute").value = String(shortestRoute);
-
-                document.getElementById('pathForm').submit();
-
             },
             fail: (error) => {
                 console.log(error);
             }
         });
+        //안전경로
+        console.log('agag',resultArray)
+        $.ajax({
+            method : "POST",
+            url : saferoute, 
+            raditional : true,
+            data : {
+                "startX" : resultArray['startaddr'][1],
+                "startY" :resultArray['startaddr'][0],
+                "endX" :resultArray['endaddr'][1],
+                "endY" :resultArray['endaddr'][0],
+                'csrfmiddlewaretoken':  csrftoken,
+            },
+            success: (response) => {
+                console.log(response['result'])
+            }
+        });
     });
-   
+    
+    console.log('매핑해야지')
+    // mapping safe
+    var leaf_map=L.map('map').setView([resultArray['startaddr'][0],resultArray['startaddr'][1]], 15); //setview [위도,경도], 줌레벨
+    markers=L.marker([resultArray['startaddr'][1],resultArray['startaddr'][0]]).addTo(leaf_map);
+    markers=L.marker([resultArray['endaddr'][0],resultArray['endaddr'][1]]).addTo(leaf_map);
+                
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom: 18}).addTo(leaf_map);    //tileLayer의 {s}는 서버 도메인 , {z},{x},{y}는 타일 지도의 위치, addTo 매소드로 map에 타일 지도를 추가
+
+
 });

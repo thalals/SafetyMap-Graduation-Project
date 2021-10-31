@@ -19,6 +19,56 @@ def home(request) :
     
     return render(request,'../templates/home.html',{'map' : maps})
 
+def saferoute(request):
+    SafePath=[]
+
+    startx = request.POST.get('startX')
+    starty = request.POST.get('startY')
+    endx = request.POST.get('endX')
+    endy = request.POST.get('endY')
+    start_coordinate = [starty,startx]
+    end_coordinate = [endy,endx]
+
+    print(start_coordinate)
+    print(end_coordinate)
+    
+    #type : list(Hmap), grid(Hex), list
+    Hexlist, grid, path = RouteSearch.startSetting(start_coordinate, end_coordinate)
+    Before_Hex = path[0]
+    increase=[0,0]      #q,r 증가율
+    count=1
+    
+    for idx, HexPoint in enumerate(path) :
+        if Before_Hex is not HexPoint :
+            #첫 노드 증가율 기록 - 두번째 노드
+            if increase[0]==0 and increase[1]==0:
+                x = int(HexPoint[0])-int(Before_Hex[0])
+                y = int(HexPoint[1])-int(Before_Hex[1])
+                increase=[x,y]
+                Before_Hex =HexPoint
+
+                continue
+            #증가율 비교
+            else :
+                x = int(HexPoint[0])-int(Before_Hex[0])
+                y = int(HexPoint[1])-int(Before_Hex[1])
+                if increase[0]==x and increase[1]==y:
+                    Before_Hex =HexPoint
+                    continue
+                else:
+                    increase=[x,y]
+
+
+        print(count,' ',HexPoint)
+        count+=1
+        Before_Hex =HexPoint
+        geo_center = grid.hex_center(HexPoint)
+        SafePath.append([geo_center.y,geo_center.x])
+
+        increase=[0,0]
+
+    return HttpResponse(json.dumps({'result':SafePath}),content_type="application/json");
+        
 
 def PathFinder(request) :
     shortData=[]

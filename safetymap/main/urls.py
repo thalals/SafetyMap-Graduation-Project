@@ -23,5 +23,6 @@ urlpatterns = [
    path('',views.home, name='home'),
    path('path',views.PathFinder, name='pathfinder'),
    path('SetSpot', views.GetSpotPoint, name='getspotpoint'),
+   path('saferoute',views.saferoute, name='saferoute'),
 
 ]
