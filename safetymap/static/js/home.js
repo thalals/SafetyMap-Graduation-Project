@@ -6,6 +6,7 @@ var markers;
 var line;
 
 $(document).ready(function(){
+    $('.route-wrap').hide()
     getLocation().then(location => {
         latitude =location['latitude']
         longitude = location['longitude'];
@@ -163,7 +164,7 @@ $("#find_botton").click(function(){
             success: (result) => {
                 var resultData = result.features;       //출발지부터 목적지까지 경로좌표들(Point, Line)
                 //결과 출력
-				var tDistance = "총 거리 : "+ ((resultData[0].properties.totalDistance) / 1000).toFixed(1) + "km,";
+				var tDistance = "총 거리 : "+ ((resultData[0].properties.totalDistance) / 1000).toFixed(1) + "km";
                 var tTime = " 총 시간 : "+ ((resultData[0].properties.totalTime) / 60).toFixed(0) + "분";
                 console.log(tDistance+" "+tTime);
                 
@@ -208,12 +209,13 @@ $("#find_botton").click(function(){
             },
             success: (response) => {
                 safeRoute = response['result']
-                var safeDistance = "총 거리 : "+ (response['totalDistance']).toFixed(1) + "km,";
+                var safeDistance = "총 거리 : "+ (response['totalDistance']).toFixed(1) + "km";
                 var safeTime = " 총 시간 : "+ (response['totalTime']).toFixed(0) + "분";
                 
                 $('#safe-route').text(safeDistance)
                 $('#safe-time').text(safeTime)
                 
+                $('.route-wrap').show();
                 console.log(safeRoute)
             },
             fail: (error) => {
