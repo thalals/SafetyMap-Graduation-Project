@@ -7,6 +7,7 @@ import geocoder     #import geojson
 import json, requests
 
 from . import RouteSearch   
+from haversine import haversine #거리측정
 
 g = geocoder.ip('me')   #현재 내위치
 # Create your views here.
@@ -21,6 +22,7 @@ def home(request) :
 
 def saferoute(request):
     SafePath=[]
+    totalDistance=0;
 
     startx = request.POST.get('startX')
     starty = request.POST.get('startY')
@@ -28,9 +30,6 @@ def saferoute(request):
     endy = request.POST.get('endY')
     start_coordinate = [starty,startx]
     end_coordinate = [endy,endx]
-
-    print(start_coordinate)
-    print(end_coordinate)
     
     #type : list(Hmap), grid(Hex), list
     Hexlist, grid, path = RouteSearch.startSetting(start_coordinate, end_coordinate)
@@ -59,15 +58,21 @@ def saferoute(request):
                     increase=[x,y]
 
 
-        print(count,' ',HexPoint)
+        # print(count,' ',HexPoint)
         count+=1
         Before_Hex =HexPoint
         geo_center = grid.hex_center(HexPoint)
         SafePath.append([geo_center.y,geo_center.x])
-
+        
+        if len(SafePath)>1:
+            totalDistance+=haversine(SafePath[len(SafePath)-2],SafePath[len(SafePath)-1])
         increase=[0,0]
 
-    return HttpResponse(json.dumps({'result':SafePath}),content_type="application/json");
+    print('토탈 거리:',totalDistance)  
+    soc = 1/16
+    totalTime = totalDistance  //soc
+    print('토탈 시간',totalTime)
+    return HttpResponse(json.dumps({'result':SafePath,'totalDistance':totalDistance,'totalTime':totalTime}),content_type="application/json");
         
 
 def PathFinder(request) :
