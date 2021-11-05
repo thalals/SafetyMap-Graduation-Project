@@ -6,9 +6,12 @@ import morton
 from main.models import *
 import time
 
+from queue import PriorityQueue
+
 Point = collections.namedtuple("Point", ["x", "y"])
 
 Hmap = {}
+TileValue_Map ={}
 
 # 시간 측정 데코레이터 함수
 def logging_time(original_fn):
@@ -31,10 +34,8 @@ def Heuristic(a, b) :
     else :
         return max(abs(dx), abs(dy))
 
-def heuristic(node, goal, D=1, D2=2 ** 0.5):  # Diagonal Distance
-    dx = abs(node.position[0] - goal.position[0])
-    dy = abs(node.position[1] - goal.position[1])
-    return D * (dx + dy) + (D2 - 2 * D) * min(dx, dy)
+def HexHeuristic(a,b):  # Diagonal Distance
+    return (abs(a.q - b.q) + abs(a.q + a.r - b.q - b.r) + abs(a.r - b.r)) / 2
 
 #현재 까지 이동한 거리
 def G_cost() :
@@ -51,13 +52,13 @@ class Node:
         self.position = position
 
         self.g = 0  #출잘지지점에서 현재노드까지의 cost합
-        self.h = 1  #heuristic 현재노드에서 목적지까지의 추정 거리
+        self.h = 0  #heuristic 현재노드에서 목적지까지의 추정 거리
         self.f = 0  #g+h
 
         self.cost = 0   #이 타일의 cost
-        self.cost_sum=0 #여기 까지 오는데 먹는 cost
 
         self.TileValue=0
+        self.TileValue_sum=0 #여기 까지 오는데 먹는 Value
 
     def __eq__(self, other):
         return self.position == other.position
@@ -141,12 +142,9 @@ def astar(starthex, endhex, grid, mapsize) :
         #이미 같은 노드가 openList에 있고, f값이 더 크면 -> Cost값
         #currentNode를 openList안에 있는 값으로 교체
         for index, item in enumerate(openList) :
-            if item.cost_sum > currentNode.cost_sum :
+            if item.TileValue < currentNode.TileValue :
                 currentNode = item
                 currentIdx = index
-            # if item.f < currentNode.f :
-            #     currentNode = item
-            #     currentIdx = index
 
         
         #openList에서 제거하고 closedList에 추가
@@ -162,7 +160,6 @@ def astar(starthex, endhex, grid, mapsize) :
             current = currentNode
 
             while current is not None :
-                # print(current.position,' : f():', current.f,' : h():', current.h,' , g():',current.g, ', cost:',current.cost,', cost_sum:',current.cost_sum)
                 path.append(current.position)
                 current = current.parent    
             return path[::-1] #reverse - 최단경로
@@ -173,7 +170,7 @@ def astar(starthex, endhex, grid, mapsize) :
         # neighbor -> 범위, cost(갈 수 잇는 길인지) 체크
 
         neighbor = grid.hex_neighbors(currentNode.position,1)
-        
+        # print('\n----------현재 위치 : ',currentNode.position,'-------------------')
         for newPosition in neighbor :
             # 탐색할 새 노드 -> Hmap 안에 없으면 path(범위 안에 hexgrid만 탐색)
             if Hmap.get(newPosition) is not None :
@@ -181,33 +178,37 @@ def astar(starthex, endhex, grid, mapsize) :
             else : continue
 
             new_node = Node(currentNode, newPosition)
-            new_node.cost = int(TileCost)
-            new_node.cost_sum = currentNode.cost_sum + new_node.cost
-            new_node.TileValue =new_node.cost -max_h/(currentNode.h*(max_h/20))
-            children.append(new_node)   
-
-        #자식들 모두 loop
-        for child in children :
-
-            #자식이 closeList에 있으면 pass
-            if child in closeList:
+            
+            if new_node in closeList:
                 continue
 
-            #f,g,h 값 업데이트
-            child.g = int(currentNode.g) +1     #현재까지 오는 비용
-            child.h = int(Heuristic(child.position, endhex))    #목적지까지의 추정비용
+            new_node.cost = int(TileCost)
 
-            child.f = child.g + child.h 
-            
-            # 자식이 openList에 있고, g값이 더 크면 continue(돌아서 온 경우)
-            # for openNode in openList :
-            #     if(child == openNode and child.g > openNode.g) :
-            #         continue
-            
-            
-            openList.append(child)
+            new_node.g = int(currentNode.g) +1     #현재까지 오는 비용
+            new_node.h = int(HexHeuristic(new_node.position, endhex))    #목적지까지의 추정비용
+            new_node.f = new_node.g + new_node.h 
 
-        endpoint = currentNode    
+            #f range : 0 ~ [max_h + hexgrid length] -> 50:50
+            new_node.TileValue = 1/(1+new_node.cost) + (new_node.f/max_h)
+            
+
+            new_node.TileValue_sum =currentNode.TileValue_sum + new_node.TileValue
+            
+            TileValue_Map[new_node.position] = new_node.TileValue
+           
+            if new_node in openList:
+                idx = openList.index(new_node)
+                if new_node.TileValue < openList[idx].TileValue :
+                    openList.pop(idx)
+                else:
+                    continue
+
+            children.append(new_node)   
+        
+        children = sorted(children,key=lambda Node : Node.TileValue, reverse=True)
+
+        openList=openList+children
+        endpoint = currentNode   
     
     path = []
     closeList.append(endpoint)
@@ -271,4 +272,4 @@ def startSetting(start_coordinate, end_coordinate) :
     # result = astar(sPoint,ePoint,grid,map_size)
     path =astar(sPoint,ePoint,grid,map_size) 
     # print(path)
-    return Hmap, grid, path
+    return Hmap, grid, path, TileValue_Map
