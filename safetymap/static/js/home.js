@@ -2,8 +2,10 @@
 let latitude=0;
 let longitude=0;
 var leaf_map;
-var markers;
-var line;
+var start_markers;
+var end_markers;
+var short_line;
+var safe_line;
 
 $(document).ready(function(){
     $('.route-wrap').hide()
@@ -237,26 +239,28 @@ $("#find_botton").click(function(){
             // markers.L.clearLayers();
             // line.L.clearLayers();
 
-            if(markers != undefined){
-                leaf_map.removeLayer(markers);
+            if(start_markers != undefined){
+                leaf_map.removeLayer(end_markers);
+                leaf_map.removeLayer(start_markers)
             }
-            if(line!= undefined){
-                leaf_map.removeLayer(line);
+            if(short_lineline!= undefined){
+                leaf_map.removeLayer(short_line);
+                leaf_map.removeLayer(safe_line);
             }
             leaf_map.setView([resultArray['startaddr'][0],resultArray['startaddr'][1]],16)
 
-            markers=L.marker([resultArray['startaddr'][0],resultArray['startaddr'][1]]).addTo(leaf_map);
-            markers=L.marker([resultArray['endaddr'][0],resultArray['endaddr'][1]]).addTo(leaf_map);
+            start_markers=L.marker([resultArray['startaddr'][0],resultArray['startaddr'][1]]).addTo(leaf_map);
+            end_markers=L.marker([resultArray['endaddr'][0],resultArray['endaddr'][1]]).addTo(leaf_map);
                         
 
             //최단 route
-            line = L.polyline(shortestRoute,{
+            short_line = L.polyline(shortestRoute,{
                 color: "red", 
                 weight: 5
             }).addTo(leaf_map);        
 
             //안전 route
-            line = L.polyline(safeRoute,{
+            safe_line = L.polyline(safeRoute,{
                 weight: 5
             }).addTo(leaf_map);
         });
