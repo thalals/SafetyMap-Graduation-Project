@@ -112,6 +112,7 @@ def giveCost(grid, startx, starty, endx, endy) :
             Hmap[Hex_Point] = Hmap[Hex_Point]+1
 
 
+        
 @logging_time
 def astar(starthex, endhex, grid, mapsize) :
     #startNode 와 endNode 초기화
@@ -122,13 +123,16 @@ def astar(starthex, endhex, grid, mapsize) :
     openList = []   #방문중이거나, 방문 할 곳
     closeList = []  #더 나은 위치를 찾은 곳(이미 방문)
 
+    # FirstCost_node = First_Cost_Search(startNode, grid)
+
     #openList에 시작 노드 추가
     openList.append(startNode)
 
     print('시작 :', startNode.position, '끝 : ',endNode.position)
     max_h = Heuristic(starthex,endhex)
     print('maxh : ',max_h)
-    endpoint = startNode
+
+    
 
     #endNode를 찾을 때까지 실행
     while openList :
@@ -170,7 +174,7 @@ def astar(starthex, endhex, grid, mapsize) :
         # neighbor -> 범위, cost(갈 수 잇는 길인지) 체크
 
         neighbor = grid.hex_neighbors(currentNode.position,1)
-        # print('\n----------현재 위치 : ',currentNode.position,'-------------------')
+
         for newPosition in neighbor :
             # 탐색할 새 노드 -> Hmap 안에 없으면 path(범위 안에 hexgrid만 탐색)
             if Hmap.get(newPosition) is not None :
@@ -190,7 +194,7 @@ def astar(starthex, endhex, grid, mapsize) :
 
             #f range : 0 ~ [max_h + hexgrid length] -> 50:50
             new_node.TileValue = 1/(1+new_node.cost) + (new_node.f/max_h)
-            
+            # new_node.TileValue=new_node.f
 
             new_node.TileValue_sum =currentNode.TileValue_sum + new_node.TileValue
             
@@ -211,8 +215,6 @@ def astar(starthex, endhex, grid, mapsize) :
         endpoint = currentNode   
     
     path = []
-    closeList.append(endpoint)
-    print(endpoint.position, endpoint.h)
     print('못찾음')
     for ch in closeList :
             path.append(ch.position)   

@@ -30,13 +30,13 @@ def PathFinder(request) :
 
     # 구여 범위 내 db 정보 (cost)
     #-----------------return hex corner ---------------------
-    Hexlist, grid, path = RouteSearch.startSetting(start_coordinate, end_coordinate)
+    Hexlist, grid, path, TileValue_map = RouteSearch.startSetting(start_coordinate, end_coordinate)
 
     print("hexgrid 개수 : ",len(Hexlist))
     
     
     for hex, cost in Hexlist.items() :
-
+        
         color = ''
         #cost만 찍어보기
         if cost >0:
@@ -51,11 +51,14 @@ def PathFinder(request) :
         for point in hexPointlist :
             hex_Polygon.append([point.y,point.x])
 
+        TileValue = 0
+        if hex in TileValue_map:
+            TileValue = TileValue_map[hex]
         folium.Polygon(
             locations=hex_Polygon,
             fill = True,
             fill_color = color,
-            tooltip = f'cost :{cost} q : {hex.q} r : {hex.r}'
+            tooltip = f'cost :{cost}, q : {hex.q}, r : {hex.r}, TV : {TileValue}'
         ).add_to(map)
         
    

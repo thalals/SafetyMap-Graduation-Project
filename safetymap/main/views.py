@@ -32,7 +32,7 @@ def saferoute(request):
     end_coordinate = [endy,endx]
     
     #type : list(Hmap), grid(Hex), list
-    Hexlist, grid, path = RouteSearch.startSetting(start_coordinate, end_coordinate)
+    Hexlist, grid, path, TileValue_map = RouteSearch.startSetting(start_coordinate, end_coordinate)
     Before_Hex = path[0]
     increase=[0,0]      #q,r 증가율
     count=1
@@ -67,6 +67,11 @@ def saferoute(request):
         if len(SafePath)>1:
             totalDistance+=haversine(SafePath[len(SafePath)-2],SafePath[len(SafePath)-1])
         increase=[0,0]
+
+    #마지막 노드 추가
+    geo_center = grid.hex_center(path[-1])
+    SafePath.append([geo_center.y,geo_center.x])
+    totalDistance+=haversine(SafePath[len(SafePath)-2],SafePath[len(SafePath)-1])
 
     print('토탈 거리:',totalDistance)  
     soc = 1/16

@@ -19,9 +19,20 @@ $(document).ready(function(){
                 title: "Show me where I am, yo!"
             }
         }).addTo(leaf_map);
+
+        
+        
     });
 })
-
+//클릭 마커 찍기
+function getmarker(){
+    leaf_map.addEventListener('click', function(e) {
+        console.log(e.latlng.lat,e.latlng.lng);
+        L.marker([e.latlng.lat,e.latlng.lng]).addTo(leaf_map);
+    })
+    $('#StartAddr').text(e.latlng.lat+' '+e.latlng.lng);
+    $('#StartAddr').disabled();
+}
 // 현재의 위치 정보를 가져온다.
 function getLocation() {
     return new Promise(resolve => {
@@ -56,7 +67,7 @@ var csrftoken = getCookie('csrftoken');
 var shortestRoute=[];   //최단거리 좌표 정보
 var safeRoute=[];
 
-var input = document.getElementById("start_input");
+var input = document.getElementById("StartAddr");
 input.onclick  = function(){
     new daum.Postcode({
         oncomplete: function(data) {
@@ -91,7 +102,7 @@ input.onclick  = function(){
 };
 
 
-var output = document.getElementById("end_input");
+var output = document.getElementById("EndAddr");
 output.onclick = function(){
     new daum.Postcode({
         oncomplete: function(data) {
@@ -113,7 +124,6 @@ output.onclick = function(){
         }
     }).open();
 };
-
 
 // //길찾기 버튼 클릭
 $("#find_botton").click(function(){
