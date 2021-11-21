@@ -11,19 +11,6 @@
 <img src="https://img.shields.io/badge/QGIS-BD8B13?style=flat-square&logo=QGIS%20AWS&logoColor=white"/></a> 
 </p>
 
-
-## 🚙결과물
-
-<p align='center'>
-  최단 경로(RED)
-  안전 경로(BLUE)
-    <img src="https://user-images.githubusercontent.com/42319300/142750851-e27d5dea-a09f-4a2c-bf76-d2c72790d62c.PNG" width="500px" /></br>
-  Tile cost
-     <img src="https://user-images.githubusercontent.com/42319300/142750858-91f88d52-3a81-489a-88d1-3bfe09479fe9.PNG" width="500px" />
-
-
-</p>
-
 ## 📁배경
 내 주위 사람이 어두운 길을 조금이라도 안전하게 왔으면서 싶어서
 
@@ -59,4 +46,18 @@
 2. 데이터베에스에서 데이터를 불러오는 시간이 오래걸림(약 2초)
 3. 경로 탐색알고리즘의 성능이 예상에 미치지 못함(속도 저하)
 
+
+## 🚙결과물
+
+<p align='center'>
+  <span>
+    <h5>최단 경로(RED) 안전 경로(BLUE)</h5></br>
+    <img src="https://user-images.githubusercontent.com/42319300/142750851-e27d5dea-a09f-4a2c-bf76-d2c72790d62c.PNG" width="800px" />
+  </span>
+  
+  <span>
+  <h4> Tile cost</h4>
+     <img src="https://user-images.githubusercontent.com/42319300/142750858-91f88d52-3a81-489a-88d1-3bfe09479fe9.PNG" width="600px" />
+  </span>
+</p>
 
