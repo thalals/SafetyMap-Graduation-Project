@@ -13,7 +13,7 @@
 
 ### 🎨 사용한 라이브러
 
-geocorder : 위치 좌표 변환</br>
+geocoder : 위치 좌표 변환</br>
 leaflet.js : 지도 프레임워크</br>
 hexgrid-py : 육각(hexagon) 그리드 구현</br>
 haversine : 좌표간 거리측정</br>
