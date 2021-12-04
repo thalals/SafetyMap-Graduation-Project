@@ -11,6 +11,13 @@
 <img src="https://img.shields.io/badge/QGIS-BD8B13?style=flat-square&logo=QGIS%20AWS&logoColor=white"/></a> 
 </p>
 
+### 🎨 사용한 라이브러
+
+geocorder : 위치 좌표 변환</br>
+leaflet.js : 지도 프레임워크</br>
+hexgrid-py : 육각(hexagon) 그리드 구현</br>
+haversine : 좌표간 거리측정</br>
+
 ## 📁배경
 내 주위 사람이 어두운 길을 조금이라도 안전하게 왔으면서 싶어서
 
