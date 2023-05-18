@@ -1,4 +1,4 @@
-# 안전한 보행길 탐색 지도(개인 졸업작품)
+# 안전 보행길 탐색 지도(개인 졸업작품)
 ### 🎨기술 스택
 <p align='center'>
 <img src="https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=HTML5&logoColor=white"/></a> 
